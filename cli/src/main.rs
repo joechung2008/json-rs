@@ -31,9 +31,9 @@ fn pretty_print_token(token: &ValueToken, indent: usize) -> String {
                 s.push_str("  ");
                 s.push_str(&pretty_print_token(v, indent + 1));
                 if i < array.values.len() - 1 {
-                    s.push_str(",");
+                    s.push(',');
                 }
-                s.push_str("\n");
+                s.push('\n');
             }
             s.push_str(&indent_str);
             s.push(']');
@@ -53,9 +53,9 @@ fn pretty_print_token(token: &ValueToken, indent: usize) -> String {
                     pretty_print_token(&pair.value, indent + 1)
                 ));
                 if i < object.members.len() - 1 {
-                    s.push_str(",");
+                    s.push(',');
                 }
-                s.push_str("\n");
+                s.push('\n');
             }
             s.push_str(&indent_str);
             s.push('}');

@@ -33,3 +33,23 @@ cargo clippy
 ```sh
 cargo test
 ```
+
+## Running the CLI
+
+To build the CLI:
+
+```sh
+cargo build --package cli
+```
+
+To run the CLI with input from a file:
+
+```sh
+cargo run --package cli < input.json
+```
+
+Or, to run the CLI and enter JSON manually (press Ctrl+D to end input):
+
+```sh
+cargo run --package cli
+```
