@@ -25,7 +25,7 @@ cargo fmt
 ## Lint
 
 ```sh
-cargo clippy --workspace --all-targets --all-features
+cargo clippy -p cli -p shared_lib  --all-targets --all-features
 ```
 
 ## Test
