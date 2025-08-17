@@ -1,0 +1,3 @@
+[workspace]
+members = ["cli", "shared_lib"]
+resolver ="3"
