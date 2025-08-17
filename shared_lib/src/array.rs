@@ -140,12 +140,12 @@ mod tests {
                             assert_eq!(expected_values_len, token.values.len());
                         }
                         _ => {
-                            assert!(false);
+                            panic!("Expected ArrayToken");
                         }
                     }
                 }
                 Err(e) => {
-                    assert!(false, "{}", e);
+                    panic!("{}", e);
                 }
             }
         }

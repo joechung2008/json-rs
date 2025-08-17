@@ -174,15 +174,15 @@ mod tests {
                 match unboxed {
                     ValueToken::TrueToken { skip, token } => {
                         assert_eq!(4, skip);
-                        assert_eq!(true, token);
+                        assert!(token);
                     }
                     _ => {
-                        assert!(false, "Expected true token");
+                        panic!("Expected true token");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }
@@ -197,15 +197,15 @@ mod tests {
                 match unboxed {
                     ValueToken::FalseToken { skip, token } => {
                         assert_eq!(5, skip);
-                        assert_eq!(false, token);
+                        assert!(!token);
                     }
                     _ => {
-                        assert!(false, "Expected false token");
+                        panic!("Expected false token");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }
@@ -222,21 +222,21 @@ mod tests {
                         assert_eq!(4, skip);
                     }
                     _ => {
-                        assert!(false, "Expected null token");
+                        panic!("Expected null token");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }
 
     #[test]
     fn test_invalid_json() {
-        match json::parse("invalid") {
-            Ok(_) => assert!(false, "Expected error for invalid input"),
-            Err(_) => {}
+        if json::parse("invalid").is_ok() {
+            panic!("Expected error for invalid input");
         }
+        // If Err, do nothing (expected)
     }
 }

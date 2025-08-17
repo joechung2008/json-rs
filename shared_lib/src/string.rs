@@ -117,12 +117,12 @@ mod tests {
                             assert_eq!(expected_token, token);
                         }
                         _ => {
-                            assert!(false);
+                            panic!("Expected StringToken");
                         }
                     }
                 }
                 Err(e) => {
-                    assert!(false, "{}", e);
+                    panic!("{}", e);
                 }
             }
         }

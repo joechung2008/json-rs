@@ -13,7 +13,7 @@ MIT
 ## Build
 
 ```sh
-cargo build
+cargo build --workspace
 ```
 
 ## Format
@@ -25,13 +25,13 @@ cargo fmt
 ## Lint
 
 ```sh
-cargo clippy
+cargo clippy --workspace --all-targets --all-features
 ```
 
 ## Test
 
 ```sh
-cargo test
+cargo test --workspace
 ```
 
 ## Running the CLI

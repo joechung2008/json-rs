@@ -174,12 +174,12 @@ mod tests {
                             assert_eq!(expected_value_as_string, token.value_as_string);
                         }
                         _ => {
-                            assert!(false);
+                            panic!("Expected NumberToken");
                         }
                     }
                 }
                 Err(e) => {
-                    assert!(false, "{}", e);
+                    panic!("{}", e);
                 }
             }
         }

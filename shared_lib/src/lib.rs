@@ -29,15 +29,15 @@ mod tests {
                 match *token {
                     ValueToken::FalseToken { skip, token } => {
                         assert_eq!(skip, 5);
-                        assert_eq!(token, false);
+                        assert!(!token);
                     }
                     _ => {
-                        assert!(false);
+                        panic!("Expected FalseToken");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }
@@ -53,12 +53,12 @@ mod tests {
                         assert_eq!(skip, 4);
                     }
                     _ => {
-                        assert!(false);
+                        panic!("Expected NullToken");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }
@@ -72,15 +72,15 @@ mod tests {
                 match *token {
                     ValueToken::TrueToken { skip, token } => {
                         assert_eq!(skip, 4);
-                        assert_eq!(token, true);
+                        assert!(token);
                     }
                     _ => {
-                        assert!(false);
+                        panic!("Expected TrueToken");
                     }
                 }
             }
             Err(e) => {
-                assert!(false, "{}", e);
+                panic!("{}", e);
             }
         }
     }

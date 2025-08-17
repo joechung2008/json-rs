@@ -101,12 +101,12 @@ mod tests {
                             assert_eq!(expected_members_len, token.members.len());
                         }
                         _ => {
-                            assert!(false);
+                            panic!("Expected ObjectToken");
                         }
                     }
                 }
                 Err(e) => {
-                    assert!(false, "{}", e);
+                    panic!("{}", e);
                 }
             }
         }
