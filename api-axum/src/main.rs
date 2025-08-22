@@ -9,24 +9,21 @@ async fn parse_endpoint(
     match content_type {
         Some(TypedHeader(ct)) if ct == ContentType::from(mime::TEXT_PLAIN) => {}
         _ => {
-            let err_json = json!({ "code": 415, "message": "Unsupported Media Type" });
             return (
                 StatusCode::UNSUPPORTED_MEDIA_TYPE,
                 [("content-type", "application/json")],
-                err_json.to_string(),
+                json!({ "code": 415, "message": "Unsupported Media Type" }).to_string(),
             );
         }
     }
 
-    // Read body as string
     let text = match String::from_utf8(body.to_vec()) {
         Ok(s) => s,
         Err(e) => {
-            let err_json = json!({ "code": 400, "message": format!("Invalid UTF-8: {}", e) });
             return (
                 StatusCode::BAD_REQUEST,
                 [("content-type", "application/json")],
-                err_json.to_string(),
+                json!({ "code": 400, "message": format!("Invalid UTF-8: {}", e) }).to_string(),
             );
         }
     };
@@ -38,12 +35,11 @@ async fn parse_endpoint(
             pretty_print_token(&result.token, 0),
         ),
         Err(e) => {
-            let err_json = json!({ "code": 400, "message": format!("{}", e) });
-            (
+            return (
                 StatusCode::BAD_REQUEST,
                 [("content-type", "application/json")],
-                err_json.to_string(),
-            )
+                json!({ "code": 400, "message": format!("{}", e) }).to_string(),
+            );
         }
     }
 }
