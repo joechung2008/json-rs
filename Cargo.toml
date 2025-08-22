@@ -1,3 +1,3 @@
 [workspace]
-members = ["api-rocket", "cli", "shared-lib"]
+members = ["api-axum", "api-rocket", "cli", "shared-lib"]
 resolver ="3"

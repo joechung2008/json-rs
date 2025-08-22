@@ -42,7 +42,7 @@ cargo fmt
 ## Lint
 
 ```sh
-cargo clippy -p cli -p shared-lib  --all-targets --all-features
+cargo clippy -p api-axum -p api-rocket -p cli -p shared-lib --all-targets --all-features
 ```
 
 ## Test
@@ -71,12 +71,17 @@ Or, to run the CLI and enter JSON manually (press Ctrl+D to end input):
 cargo run --package cli
 ```
 
+## Running the Axum API
+
+```sh
+cargo run --package api-axum
+```
+
+The server will start and listen for HTTP requests (default: http://localhost:8080).
+
 ## Running the Rocket API & Testing with REST Client
 
 ### Run the Rocket API
-
-1. Open a terminal in the project root.
-2. Run the following command to start the Rocket API server:
 
 ```sh
 cargo run --package api-rocket
