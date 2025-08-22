@@ -68,6 +68,8 @@ pub fn parse_object(object: &str) -> Result<ValueToken, &'static str> {
                 } else if ch == '}' {
                     pos += 1;
                     mode = Mode::End;
+                } else {
+                    return Err("Expected ',' or '}'");
                 }
             }
             Mode::End => break,

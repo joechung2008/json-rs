@@ -34,20 +34,21 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
                 if WHITESPACE.is_match(char) {
                     pos += 1;
                 } else if ch == '-' {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
+                    mode = Mode::Characteristic;
+                } else {
+                    mode = Mode::Characteristic;
                 }
-
-                mode = Mode::Characteristic;
             }
             Mode::Characteristic => {
                 if ch == '0' {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                     mode = Mode::DecimalPoint;
                 } else if NON_ZERO_DIGIT.is_match(char) {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                     mode = Mode::CharacteristicDigit;
                 } else {
                     return Err("Expected digit");
@@ -55,8 +56,8 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
             }
             Mode::CharacteristicDigit => {
                 if DIGIT.is_match(char) {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                 } else if !delimiters.is_empty() && is_delimiter.is_match(char) {
                     mode = Mode::End;
                 } else {
@@ -65,17 +66,19 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
             }
             Mode::DecimalPoint => {
                 if ch == '.' {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                     mode = Mode::Mantissa;
+                } else if !delimiters.is_empty() && is_delimiter.is_match(char) {
+                    mode = Mode::End;
                 } else {
                     mode = Mode::Exponent;
                 }
             }
             Mode::Mantissa => {
                 if DIGIT.is_match(char) {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                 } else if ch == 'e' || ch == 'E' {
                     mode = Mode::Exponent;
                 } else if !delimiters.is_empty() && is_delimiter.is_match(char) {
@@ -86,8 +89,8 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
             }
             Mode::Exponent => {
                 if ch == 'e' || ch == 'E' {
-                    pos += 1;
                     value_as_string.push('e');
+                    pos += 1;
                     mode = Mode::ExponentSign;
                 } else {
                     return Err("Expected 'e' or 'E'");
@@ -95,16 +98,17 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
             }
             Mode::ExponentSign => {
                 if ch == '+' || ch == '-' {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
+                    mode = Mode::ExponentFirstDigit;
+                } else {
+                    mode = Mode::ExponentFirstDigit;
                 }
-
-                mode = Mode::ExponentFirstDigit;
             }
             Mode::ExponentFirstDigit => {
                 if DIGIT.is_match(char) {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                     mode = Mode::ExponentDigits;
                 } else {
                     return Err("Expected digit");
@@ -112,8 +116,8 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
             }
             Mode::ExponentDigits => {
                 if DIGIT.is_match(char) {
-                    pos += 1;
                     value_as_string.push(ch);
+                    pos += 1;
                 } else if !delimiters.is_empty() && is_delimiter.is_match(char) {
                     mode = Mode::End;
                 } else {
@@ -125,7 +129,7 @@ pub fn parse_number(number: &str, delimiters: &str) -> Result<ValueToken, &'stat
     }
 
     match mode {
-        Mode::Characteristic | Mode::ExponentFirstDigit => {
+        Mode::Characteristic | Mode::ExponentFirstDigit | Mode::ExponentSign => {
             return Err("Incomplete expression");
         }
         _ => {}

@@ -53,3 +53,25 @@ Or, to run the CLI and enter JSON manually (press Ctrl+D to end input):
 ```sh
 cargo run --package cli
 ```
+
+## Running the Rocket API & Testing with REST Client
+
+### Run the Rocket API
+
+1. Open a terminal in the project root.
+2. Run the following command to start the Rocket API server:
+
+```sh
+cargo run --package api-rocket
+```
+
+The server will start and listen for HTTP requests (default: http://localhost:8000).
+
+### Test the API with REST Client
+
+1. Install the [REST Client extension](https://marketplace.visualstudio.com/items?itemName=humao.rest-client) in VSCode.
+2. Open any `.rest` file in the `testdata/` directory (e.g., `testdata/all.rest`).
+3. Click "Send Request" above a request to send it to the running API server.
+4. View the response directly in VSCode.
+
+You can modify or add `.rest` files in `testdata/` to create custom requests for testing.
