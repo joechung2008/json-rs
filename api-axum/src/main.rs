@@ -34,13 +34,11 @@ async fn parse_endpoint(
             [("content-type", "text/plain")],
             pretty_print_token(&result.token, 0),
         ),
-        Err(e) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                [("content-type", "application/json")],
-                json!({ "code": 400, "message": format!("{}", e) }).to_string(),
-            );
-        }
+        Err(e) => (
+            StatusCode::BAD_REQUEST,
+            [("content-type", "application/json")],
+            json!({ "code": 400, "message": format!("{}", e) }).to_string(),
+        ),
     }
 }
 
