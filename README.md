@@ -10,6 +10,23 @@ MIT
 
 [json.org](http://json.org)
 
+## Prerequisites (Windows)
+
+To ensure `cargo install` works for all dependencies, you must install `mingw-w64` and the required toolchain:
+
+1. Download and install [MSYS2](https://www.msys2.org/).
+
+2. Open the MSYS2 terminal and run:
+
+```sh
+pacman -Syu
+pacman -S mingw-w64-x86_64-toolchain
+```
+
+3. Ensure the MSYS2 `mingw64` environment is in your PATH, or use the `MSYS2 MinGW 64-bit` terminal for building Rust projects.
+
+This will provide `dlltool.exe` and other tools needed for compiling certain crates.
+
 ## Build
 
 ```sh
