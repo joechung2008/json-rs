@@ -26,7 +26,7 @@ jobs:
         run: cargo build --workspace --verbose
 
       - name: Lint with clippy
-        run: cargo clippy -p cli -p shared-lib --all-targets --all-features -- -D warnings
+        run: cargo clippy -p api-axum -p api-rocket -p cli -p shared-lib --all-targets --all-features -- -D warnings
 
       - name: Run tests
         run: cargo test --workspace --verbose
