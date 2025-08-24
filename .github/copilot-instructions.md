@@ -2,8 +2,9 @@
 
 ## Project Overview
 
-This is a Rust monorepo for a JSON parser ported from TypeScript. It consists of three main crates:
+This is a Rust monorepo for a JSON parser ported from TypeScript. It consists of five main crates:
 
+- **api-actix**: HTTP API server exposing JSON parsing via Actix Web. Provides a POST `/api/v1/parse` endpoint, accepts plain text JSON, and returns pretty-printed output or error JSON.
 - **api-axum**: HTTP API server exposing JSON parsing via Axum. Provides a POST `/api/v1/parse` endpoint, accepts plain text JSON, and returns pretty-printed output or error JSON.
 - **api-rocket**: HTTP API server exposing JSON parsing via Rocket.
 - **cli**: Command-line interface for parsing JSON from stdin.
@@ -11,6 +12,7 @@ This is a Rust monorepo for a JSON parser ported from TypeScript. It consists of
 
 ## Workspace Structure
 
+- `api-actix/`: Provides a POST `/api/v1/parse` endpoint using Actix Web. Accepts plain text JSON, returns pretty-printed output or error JSON.
 - `api-axum/`: Provides a POST `/api/v1/parse` endpoint. Accepts plain text JSON, returns pretty-printed output or error JSON.
 - `api-rocket/`: Provides a POST `/api/v1/parse` endpoint. Accepts plain text JSON, returns pretty-printed output or error JSON.
 - `cli/`: Reads JSON from stdin, parses it using shared-lib, and prints a pretty-formatted result or error.
@@ -27,6 +29,7 @@ This is a Rust monorepo for a JSON parser ported from TypeScript. It consists of
 ## Usage
 
 - **CLI**: `cargo run --package cli < input.json` or enter JSON manually.
+- **Actix Web API**: `cargo run --package api-actix` (default: http://localhost:8000). Test with `.rest` files in `testdata/`.
 - **Axum API**: `cargo run --package api-axum` (default: http://localhost:8080). Test with `.rest` files in `testdata/`.
 - **Rocket API**: `cargo run --package api-rocket` (default: http://localhost:8000). Test with `.rest` files in `testdata/`.
 

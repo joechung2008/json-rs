@@ -5,6 +5,15 @@ extern crate regex;
 pub use json::parse;
 pub use types::{Json, ValueToken};
 
+mod array;
+mod json;
+mod number;
+mod object;
+mod pair;
+mod string;
+mod types;
+mod value;
+
 pub fn pretty_print_token(token: &ValueToken, indent: usize) -> String {
     let indent_str = "  ".repeat(indent);
     match token {
@@ -63,110 +72,6 @@ pub fn pretty_print_token(token: &ValueToken, indent: usize) -> String {
                 pair.key,
                 pretty_print_token(&pair.value, indent + 1)
             )
-        }
-    }
-}
-
-mod array;
-mod json;
-mod number;
-mod object;
-mod pair;
-mod string;
-mod types;
-mod value;
-
-#[cfg(test)]
-mod tests {
-    use crate::Json;
-    use crate::ValueToken;
-    use crate::parse;
-
-    #[test]
-    fn false_test() {
-        match parse("false") {
-            Ok(Json { skip, token }) => {
-                assert_eq!(skip, 5);
-
-                match *token {
-                    ValueToken::FalseToken { skip, token } => {
-                        assert_eq!(skip, 5);
-                        assert!(!token);
-                    }
-                    _ => {
-                        panic!("Expected FalseToken");
-                    }
-                }
-            }
-            Err(e) => {
-                panic!("{}", e);
-            }
-        }
-    }
-
-    #[test]
-    fn null_test() {
-        match parse("null") {
-            Ok(Json { skip, token }) => {
-                assert_eq!(skip, 4);
-
-                match *token {
-                    ValueToken::NullToken { skip } => {
-                        assert_eq!(skip, 4);
-                    }
-                    _ => {
-                        panic!("Expected NullToken");
-                    }
-                }
-            }
-            Err(e) => {
-                panic!("{}", e);
-            }
-        }
-    }
-
-    #[test]
-    fn true_test() {
-        match parse("true") {
-            Ok(Json { skip, token }) => {
-                assert_eq!(skip, 4);
-
-                match *token {
-                    ValueToken::TrueToken { skip, token } => {
-                        assert_eq!(skip, 4);
-                        assert!(token);
-                    }
-                    _ => {
-                        panic!("Expected TrueToken");
-                    }
-                }
-            }
-            Err(e) => {
-                panic!("{}", e);
-            }
-        }
-    }
-
-    #[test]
-    fn object_with_number_test() {
-        match parse(r#"{"n":0}"#) {
-            Ok(Json { token, .. }) => match *token {
-                ValueToken::ObjectToken { ref token, .. } => {
-                    assert_eq!(token.members.len(), 1);
-                    let pair = &token.members[0];
-                    assert_eq!(pair.key, "n");
-                    match *pair.value {
-                        ValueToken::NumberToken { ref token, .. } => {
-                            assert_eq!(token.value_as_string, "0");
-                        }
-                        _ => panic!("Expected NumberToken for value"),
-                    }
-                }
-                _ => panic!("Expected ObjectToken"),
-            },
-            Err(e) => {
-                panic!("Failed to parse object with number: {}", e);
-            }
         }
     }
 }

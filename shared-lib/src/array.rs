@@ -115,39 +115,299 @@ mod tests {
     use crate::types::{Json, ValueToken};
 
     #[test]
-    fn arrays() {
-        for &(input, expected_json_skip, expected_token_skip, expected_values_len) in [
-            ("[]", 2, 2, 0),
-            (" [ ] ", 4, 3, 0),
-            ("[[]]", 4, 4, 1),
-            (" [ [ ] ] ", 8, 7, 1),
-            ("[[], false]", 11, 11, 2),
-            ("[[], false, null]", 17, 17, 3),
-            ("[[], false, null, 1.2e3]", 24, 24, 4),
-            ("[[], false, null, 1.2e3, {}]", 28, 28, 5),
-            ("[[], false, null, 1.2e3, {}, \"Hello, world!\"]", 45, 45, 6),
-        ]
-        .iter()
-        {
-            match parse(input) {
-                Ok(Json { skip, token }) => {
-                    assert_eq!(expected_json_skip, skip);
-
-                    let unboxed = *token;
-                    match unboxed {
-                        ValueToken::ArrayToken { skip, token } => {
-                            assert_eq!(expected_token_skip, skip);
-                            assert_eq!(expected_values_len, token.values.len());
-                        }
-                        _ => {
-                            panic!("Expected ArrayToken");
-                        }
+    fn array_empty() {
+        let input = "[]";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(2, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(2, skip);
+                        assert_eq!(0, token.values.len());
                     }
-                }
-                Err(e) => {
-                    panic!("{}", e);
+                    _ => panic!("Expected ArrayToken"),
                 }
             }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_empty_spaces() {
+        let input = " [ ] ";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(4, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(3, skip);
+                        assert_eq!(0, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_nested_empty() {
+        let input = "[[]]";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(4, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(4, skip);
+                        assert_eq!(1, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_nested_empty_spaces() {
+        let input = " [ [ ] ] ";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(8, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(7, skip);
+                        assert_eq!(1, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_mixed_types() {
+        let input = "[[], false]";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(11, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(11, skip);
+                        assert_eq!(2, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_mixed_types_more() {
+        let input = "[[], false, null]";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(17, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(17, skip);
+                        assert_eq!(3, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_numbers() {
+        let input = "[[], false, null, 1.2e3]";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(24, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(24, skip);
+                        assert_eq!(4, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_objects() {
+        let input = r#"[[], false, null, 1.2e3, {}]"#;
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(28, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(28, skip);
+                        assert_eq!(5, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_strings() {
+        let input = r#"[[], false, null, 1.2e3, {}, "Hello, world!"]"#;
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(45, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::ArrayToken { skip, token } => {
+                        assert_eq!(45, skip);
+                        assert_eq!(6, token.values.len());
+                    }
+                    _ => panic!("Expected ArrayToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_null() {
+        let input = "[null]";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::NullToken { .. } => {}
+                        _ => panic!("Expected NullToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_true() {
+        let input = "[true]";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::TrueToken { .. } => {}
+                        _ => panic!("Expected TrueToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_false() {
+        let input = "[false]";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::FalseToken { .. } => {}
+                        _ => panic!("Expected FalseToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_number() {
+        let input = "[42]";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::NumberToken { .. } => {}
+                        _ => panic!("Expected NumberToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_string() {
+        let input = r#"["foo"]"#;
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::StringToken { .. } => {}
+                        _ => panic!("Expected StringToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_array() {
+        let input = "[[1,2]]";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::ArrayToken { .. } => {}
+                        _ => panic!("Expected ArrayToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn array_with_object() {
+        let input = r#"[{"a":1}]"#;
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::ArrayToken { token, .. } => {
+                    assert_eq!(1, token.values.len());
+                    match *token.values[0] {
+                        ValueToken::ObjectToken { .. } => {}
+                        _ => panic!("Expected ObjectToken"),
+                    }
+                }
+                _ => panic!("Expected ArrayToken"),
+            },
+            Err(e) => panic!("{}", e),
         }
     }
 }

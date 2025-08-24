@@ -56,25 +56,33 @@ cargo test --workspace
 To build the CLI:
 
 ```sh
-cargo build --package cli
+cargo build -p cli
 ```
 
 To run the CLI with input from a file:
 
 ```sh
-cargo run --package cli < input.json
+cargo run -p cli < input.json
 ```
 
 Or, to run the CLI and enter JSON manually (press Ctrl+D to end input):
 
 ```sh
-cargo run --package cli
+cargo run -p cli
 ```
+
+## Running the Actix Web API
+
+```sh
+cargo run -p api-actix
+```
+
+The server will start and listen for HTTP requests (default: http://localhost:8000).
 
 ## Running the Axum API
 
 ```sh
-cargo run --package api-axum
+cargo run -p api-axum
 ```
 
 The server will start and listen for HTTP requests (default: http://localhost:8080).
@@ -84,7 +92,7 @@ The server will start and listen for HTTP requests (default: http://localhost:80
 ### Run the Rocket API
 
 ```sh
-cargo run --package api-rocket
+cargo run -p api-rocket
 ```
 
 The server will start and listen for HTTP requests (default: http://localhost:8000).

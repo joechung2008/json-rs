@@ -150,42 +150,232 @@ mod tests {
     use crate::types::{Json, ValueToken};
 
     #[test]
-    fn numbers() {
-        for &(
-            input,
-            expected_json_skip,
-            expected_token_skip,
-            expected_value,
-            expected_value_as_string,
-        ) in [
-            ("0", 1, 1, 0.0, "0"),
-            ("-1", 2, 2, -1.0, "-1"),
-            ("1", 1, 1, 1.0, "1"),
-            (" 1.2e3 ", 6, 5, 1200.0, "1.2e3"),
-        ]
-        .iter()
-        {
-            match parse(input) {
-                Ok(Json { skip, token }) => {
-                    assert_eq!(expected_json_skip, skip);
-
-                    let unboxed = *token;
-                    match unboxed {
-                        ValueToken::NumberToken { skip, token } => {
-                            assert_eq!(expected_token_skip, skip);
-                            let epsilon = 1e-10;
-                            assert!((expected_value - token.value).abs() < epsilon);
-                            assert_eq!(expected_value_as_string, token.value_as_string);
-                        }
-                        _ => {
-                            panic!("Expected NumberToken");
-                        }
+    fn test_zero() {
+        let input = "0";
+        let expected_json_skip = 1;
+        let expected_token_skip = 1;
+        let expected_value = 0.0;
+        let expected_value_as_string = "0";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::NumberToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        let epsilon = 1e-10;
+                        assert!((expected_value - token.value).abs() < epsilon);
+                        assert_eq!(expected_value_as_string, token.value_as_string);
+                    }
+                    _ => {
+                        panic!("Expected NumberToken");
                     }
                 }
-                Err(e) => {
-                    panic!("{}", e);
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_negative_one() {
+        let input = "-1";
+        let expected_json_skip = 2;
+        let expected_token_skip = 2;
+        let expected_value = -1.0;
+        let expected_value_as_string = "-1";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::NumberToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        let epsilon = 1e-10;
+                        assert!((expected_value - token.value).abs() < epsilon);
+                        assert_eq!(expected_value_as_string, token.value_as_string);
+                    }
+                    _ => {
+                        panic!("Expected NumberToken");
+                    }
                 }
             }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_one() {
+        let input = "1";
+        let expected_json_skip = 1;
+        let expected_token_skip = 1;
+        let expected_value = 1.0;
+        let expected_value_as_string = "1";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::NumberToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        let epsilon = 1e-10;
+                        assert!((expected_value - token.value).abs() < epsilon);
+                        assert_eq!(expected_value_as_string, token.value_as_string);
+                    }
+                    _ => {
+                        panic!("Expected NumberToken");
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_float_exponent() {
+        let input = " 1.2e3 ";
+        let expected_json_skip = 6;
+        let expected_token_skip = 5;
+        let expected_value = 1200.0;
+        let expected_value_as_string = "1.2e3";
+        match parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::NumberToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        let epsilon = 1e-10;
+                        assert!((expected_value - token.value).abs() < epsilon);
+                        assert_eq!(expected_value_as_string, token.value_as_string);
+                    }
+                    _ => {
+                        panic!("Expected NumberToken");
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_plus_sign() {
+        let input = "+42";
+        let expected_value = 42.0;
+        let expected_value_as_string = "42"; // Rust f64 parsing ignores '+'
+        if let Ok(Json { token, .. }) = parse(input) {
+            if let ValueToken::NumberToken { token, .. } = *token {
+                let epsilon = 1e-10;
+                assert!((expected_value - token.value).abs() < epsilon);
+                assert_eq!(expected_value_as_string, token.value_as_string);
+            } else {
+                panic!("Expected NumberToken");
+            }
+        }
+    }
+
+    #[test]
+    fn test_leading_zero() {
+        let input = "012";
+        if parse(input).is_ok() {
+            panic!("Should not parse number with leading zero");
+        }
+    }
+
+    #[test]
+    fn test_decimal_point_no_mantissa() {
+        let input = "2.";
+        let expected_value = 2.0;
+        let expected_value_as_string = "2.";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::NumberToken { token, .. } => {
+                    let epsilon = 1e-10;
+                    assert!((expected_value - token.value).abs() < epsilon);
+                    assert_eq!(expected_value_as_string, token.value_as_string);
+                }
+                _ => panic!("Expected NumberToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn test_decimal_point_and_mantissa() {
+        let input = "2.5";
+        let expected_value = 2.5;
+        let expected_value_as_string = "2.5";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::NumberToken { token, .. } => {
+                    let epsilon = 1e-10;
+                    assert!((expected_value - token.value).abs() < epsilon);
+                    assert_eq!(expected_value_as_string, token.value_as_string);
+                }
+                _ => panic!("Expected NumberToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn test_positive_exponent_no_plus() {
+        let input = "1e2";
+        let expected_value = 100.0;
+        let expected_value_as_string = "1e2";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::NumberToken { token, .. } => {
+                    let epsilon = 1e-10;
+                    assert!((expected_value - token.value).abs() < epsilon);
+                    assert_eq!(expected_value_as_string, token.value_as_string);
+                }
+                _ => panic!("Expected NumberToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn test_positive_exponent_with_plus() {
+        let input = "1e+2";
+        let expected_value = 100.0;
+        let expected_value_as_string = "1e+2";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::NumberToken { token, .. } => {
+                    let epsilon = 1e-10;
+                    assert!((expected_value - token.value).abs() < epsilon);
+                    assert_eq!(expected_value_as_string, token.value_as_string);
+                }
+                _ => panic!("Expected NumberToken"),
+            },
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn test_negative_exponent() {
+        let input = "1e-2";
+        let expected_value = 0.01;
+        let expected_value_as_string = "1e-2";
+        match parse(input) {
+            Ok(Json { token, .. }) => match *token {
+                ValueToken::NumberToken { token, .. } => {
+                    let epsilon = 1e-10;
+                    assert!((expected_value - token.value).abs() < epsilon);
+                    assert_eq!(expected_value_as_string, token.value_as_string);
+                }
+                _ => panic!("Expected NumberToken"),
+            },
+            Err(e) => panic!("{}", e),
         }
     }
 }

@@ -1,6 +1,7 @@
 use crate::types::ValueToken;
 use regex::Regex;
 
+#[derive(PartialEq)]
 enum Mode {
     Scanning,
     Character,
@@ -72,21 +73,40 @@ pub fn parse_string(string: &str) -> Result<ValueToken, &'static str> {
                     token.push('\t');
                     mode = Mode::Character;
                 } else if ch == 'u' {
+                    pos += 1;
                     mode = Mode::Unicode;
                 } else {
                     return Err("Unexpected escape characxter");
                 }
             }
             Mode::Unicode => {
-                // TODO Make sure slice is a valid hex code
+                // Ensure there are at least 4 hex digits
+                if string.len() < pos + 4 {
+                    return Err("Invalid unicode escape: too short");
+                }
                 let slice: String = string.chars().skip(pos).take(4).collect();
-                token.push('\\');
-                token.push_str(&slice);
+                if !slice.chars().all(|c| c.is_ascii_hexdigit()) {
+                    return Err("Invalid unicode escape: non-hex digit");
+                }
+                // Convert hex to char
+                if let Ok(codepoint) = u32::from_str_radix(&slice, 16) {
+                    if let Some(unicode_char) = std::char::from_u32(codepoint) {
+                        token.push(unicode_char);
+                    } else {
+                        return Err("Invalid unicode codepoint");
+                    }
+                } else {
+                    return Err("Invalid unicode escape");
+                }
                 pos += 4;
                 mode = Mode::Character;
             }
             Mode::End => break,
         }
+    }
+    // If we didn't reach Mode::End, string was unterminated
+    if mode != Mode::End {
+        return Err("Unterminated string");
     }
     Ok(ValueToken::StringToken { skip: pos, token })
 }
@@ -97,34 +117,155 @@ mod tests {
     use crate::types::{Json, ValueToken};
 
     #[test]
-    fn strings() {
-        for &(input, expected_json_skip, expected_token_skip, expected_token) in [
-            ("\"Hello, world!\"", 15, 15, "Hello, world!"),
-            ("\"\\u0022\"", 8, 8, "\\u0022"),
-            ("\"\"", 2, 2, ""),
-            (" \"\" ", 3, 2, ""),
-        ]
-        .iter()
-        {
-            match json::parse(input) {
-                Ok(Json { skip, token }) => {
-                    assert_eq!(expected_json_skip, skip);
+    fn test_hello_world() {
+        let input = "\"Hello, world!\"";
+        let expected_json_skip = 15;
+        let expected_token_skip = 15;
+        let expected_token = "Hello, world!";
+        match json::parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
 
-                    let unboxed = *token;
-                    match unboxed {
-                        ValueToken::StringToken { skip, token } => {
-                            assert_eq!(expected_token_skip, skip);
-                            assert_eq!(expected_token, token);
-                        }
-                        _ => {
-                            panic!("Expected StringToken");
-                        }
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::StringToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        assert_eq!(expected_token, token);
+                    }
+                    _ => {
+                        panic!("Expected StringToken");
                     }
                 }
-                Err(e) => {
-                    panic!("{}", e);
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_escaped_quote() {
+        let input = r#""\"""#;
+        let expected_json_skip = 4;
+        let expected_token_skip = 4;
+        let expected_token = "\"";
+        match json::parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::StringToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        assert_eq!(expected_token, token);
+                    }
+                    _ => {
+                        panic!("Expected StringToken");
+                    }
                 }
             }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_empty_string() {
+        let input = r#""""#;
+        let expected_json_skip = 2;
+        let expected_token_skip = 2;
+        let expected_token = "";
+        match json::parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::StringToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        assert_eq!(expected_token, token);
+                    }
+                    _ => {
+                        panic!("Expected StringToken");
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_empty_string_with_spaces() {
+        let input = r#" "" "#;
+        let expected_json_skip = 3;
+        let expected_token_skip = 2;
+        let expected_token = "";
+        match json::parse(input) {
+            Ok(Json { skip, token }) => {
+                assert_eq!(expected_json_skip, skip);
+
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::StringToken { skip, token } => {
+                        assert_eq!(expected_token_skip, skip);
+                        assert_eq!(expected_token, token);
+                    }
+                    _ => {
+                        panic!("Expected StringToken");
+                    }
+                }
+            }
+            Err(e) => {
+                panic!("{}", e);
+            }
+        }
+    }
+
+    #[test]
+    fn test_unicode_escape() {
+        let input = "\"\\u0041\"";
+        let expected_token = "A";
+        match json::parse(input) {
+            Ok(Json { token, .. }) => {
+                let unboxed = *token;
+                match unboxed {
+                    ValueToken::StringToken { token, .. } => {
+                        assert_eq!(expected_token, token);
+                    }
+                    _ => panic!("Expected StringToken"),
+                }
+            }
+            Err(e) => panic!("{}", e),
+        }
+    }
+
+    #[test]
+    fn test_invalid_missing_quotes() {
+        let input = "foo";
+        match json::parse(input) {
+            Ok(_) => panic!("Should have failed"),
+            Err(_) => {}
+        }
+    }
+
+    #[test]
+    fn test_unterminated_string() {
+        let input = r#""unterminated"#;
+        match json::parse(input) {
+            Ok(_) => panic!("Should have failed"),
+            Err(_) => {}
+        }
+    }
+
+    #[test]
+    fn test_invalid_escape() {
+        let input = r#""bad\q""#;
+        match json::parse(input) {
+            Ok(_) => panic!("Should have failed"),
+            Err(_) => {}
         }
     }
 }
