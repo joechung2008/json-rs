@@ -245,27 +245,24 @@ mod tests {
     #[test]
     fn test_invalid_missing_quotes() {
         let input = "foo";
-        match json::parse(input) {
-            Ok(_) => panic!("Should have failed"),
-            Err(_) => {}
+        if json::parse(input).is_ok() {
+            panic!("Should have failed");
         }
     }
 
     #[test]
     fn test_unterminated_string() {
         let input = r#""unterminated"#;
-        match json::parse(input) {
-            Ok(_) => panic!("Should have failed"),
-            Err(_) => {}
+        if json::parse(input).is_ok() {
+            panic!("Should have failed");
         }
     }
 
     #[test]
     fn test_invalid_escape() {
         let input = r#""bad\q""#;
-        match json::parse(input) {
-            Ok(_) => panic!("Should have failed"),
-            Err(_) => {}
+        if json::parse(input).is_ok() {
+            panic!("Should have failed");
         }
     }
 }
