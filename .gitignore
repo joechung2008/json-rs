@@ -1,1 +1,12 @@
-/target
+# Build output
+**/target/
+
+# Misc
+.DS_Store
+
+# JetBrains IDEs
+.idea/
+
+# VSCode
+.vscode/
+!.vscode/extensions.json
