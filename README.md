@@ -42,7 +42,7 @@ cargo fmt
 ## Lint
 
 ```sh
-cargo clippy -p api-axum -p api-rocket -p cli -p shared-lib --all-targets --all-features
+cargo clippy -p api-actix -p api-axum -p api-rocket -p cli -p shared-lib --all-targets --all-features
 ```
 
 ## Test
