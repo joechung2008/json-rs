@@ -46,7 +46,7 @@ async fn parse_endpoint(req_body: web::Bytes, req: actix_web::HttpRequest) -> im
         Err(e) => {
             let err = ErrorResponse {
                 code: 400,
-                message: format!("{}", e),
+                message: e.to_string(),
             };
             HttpResponse::BadRequest()
                 .insert_header((CONTENT_TYPE, "application/json"))
