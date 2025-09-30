@@ -13,5 +13,6 @@ RUN cargo build --release --package api-rocket
 FROM debian:trixie-slim
 WORKDIR /app
 COPY --from=builder /app/target/release/api-rocket /usr/local/bin/api-rocket
+ENV ROCKET_ADDRESS=0.0.0.0
 EXPOSE 8000
 CMD ["api-rocket"]
