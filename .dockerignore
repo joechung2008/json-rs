@@ -1,0 +1,28 @@
+# Git
+.git
+.gitignore
+
+# Rust build artifacts
+target/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.swp
+
+# Test data (exclude if not needed in Docker image)
+testdata/
+
+# Documentation (optional, exclude to reduce image size)
+README.md
+LICENSE
